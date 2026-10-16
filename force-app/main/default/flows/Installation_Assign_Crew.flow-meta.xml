@@ -6,7 +6,7 @@
         <description>A planned installation with a crew and a date is scheduled: the status follows the facts rather than waiting for somebody to change it.</description>
         <name>Move_To_Scheduled</name>
         <label>Move To Scheduled</label>
-        <locationX>176</locationX>
+        <locationX>179</locationX>
         <locationY>323</locationY>
         <assignmentItems>
             <assignToReference>$Record.Status__c</assignToReference>
@@ -15,11 +15,61 @@
                 <stringValue>Scheduled</stringValue>
             </value>
         </assignmentItems>
+        <connector>
+            <targetReference>Check_roof_type</targetReference>
+        </connector>
     </assignments>
+    <assignments>
+        <name>Update_crew_size_to_3</name>
+        <label>Update crew size to 3</label>
+        <locationX>59</locationX>
+        <locationY>634</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Crew_Size__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>3.0</numberValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Check_roof_type</name>
+        <label>Check roof type</label>
+        <locationX>177</locationX>
+        <locationY>502</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Roof_type_is_flat</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Roof_Type__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Flat</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_crew_size_to_3</targetReference>
+            </connector>
+            <label>Roof type is flat</label>
+        </rules>
+    </decisions>
     <description>When a planner puts a crew on a planned installation that already has a date, the installation moves to Scheduled on its own.</description>
     <environments>Default</environments>
     <interviewLabel>Installation Assign Crew {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Installation Assign Crew</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <start>
         <locationX>50</locationX>
