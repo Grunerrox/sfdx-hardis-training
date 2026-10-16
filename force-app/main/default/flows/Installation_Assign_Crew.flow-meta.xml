@@ -3,11 +3,25 @@
     <apiVersion>64.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
+        <description>US-018: the crew never exceeds the cap the planner set on the installation.</description>
+        <name>Bring_Crew_Back_To_Cap</name>
+        <label>Bring Crew Back To Cap</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Crew_Size__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Crew_Capacity_Cap__c</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
         <description>A planned installation with a crew and a date is scheduled: the status follows the facts rather than waiting for somebody to change it.</description>
         <name>Move_To_Scheduled</name>
         <label>Move To Scheduled</label>
-        <locationX>179</locationX>
-        <locationY>323</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>$Record.Status__c</assignToReference>
             <operator>Assign</operator>
@@ -16,14 +30,14 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Check_roof_type</targetReference>
+            <targetReference>Flat_Roof_Minimum</targetReference>
         </connector>
     </assignments>
     <assignments>
-        <name>Update_crew_size_to_3</name>
-        <label>Update crew size to 3</label>
-        <locationX>59</locationX>
-        <locationY>634</locationY>
+        <name>Update_Crew_to_size_3</name>
+        <label>Update Crew to size 3</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>$Record.Crew_Size__c</assignToReference>
             <operator>Assign</operator>
@@ -31,16 +45,59 @@
                 <numberValue>3.0</numberValue>
             </value>
         </assignmentItems>
+        <connector>
+            <targetReference>Crew_Over_Cap</targetReference>
+        </connector>
     </assignments>
     <decisions>
-        <name>Check_roof_type</name>
-        <label>Check roof type</label>
-        <locationX>177</locationX>
-        <locationY>502</locationY>
+        <description>Is the crew larger than the cap this installation allows?</description>
+        <name>Crew_Over_Cap</name>
+        <label>Crew Over Cap</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Within the cap</defaultConnectorLabel>
+        <rules>
+            <name>Too_Large</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Crew_Capacity_Cap__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Crew_Size__c</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <elementReference>$Record.Crew_Capacity_Cap__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Bring_Crew_Back_To_Cap</targetReference>
+            </connector>
+            <label>Too large for this installation</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Flat_Roof_Minimum</name>
+        <label>Flat Roof Minimum</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Crew_Over_Cap</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
-            <name>Roof_type_is_flat</name>
+            <name>Too_small_for_a_flat_roof</name>
             <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Crew_Size__c</leftValueReference>
+                <operator>LessThan</operator>
+                <rightValue>
+                    <numberValue>3.0</numberValue>
+                </rightValue>
+            </conditions>
             <conditions>
                 <leftValueReference>$Record.Roof_Type__c</leftValueReference>
                 <operator>EqualTo</operator>
@@ -49,12 +106,12 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Update_crew_size_to_3</targetReference>
+                <targetReference>Update_Crew_to_size_3</targetReference>
             </connector>
-            <label>Roof type is flat</label>
+            <label>Too small for a flat roof</label>
         </rules>
     </decisions>
-    <description>When a planner puts a crew on a planned installation that already has a date, the installation moves to Scheduled on its own.</description>
+    <description>When a planner puts a crew on a planned installation that already has a date, the installation moves to Scheduled on its own. A crew larger than the installation cap is brought back down to the cap: too many people on a small roof is a safety problem.</description>
     <environments>Default</environments>
     <interviewLabel>Installation Assign Crew {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Installation Assign Crew</label>
@@ -67,12 +124,12 @@
     <processMetadataValues>
         <name>CanvasMode</name>
         <value>
-            <stringValue>FREE_FORM_CANVAS</stringValue>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <start>
-        <locationX>50</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Move_To_Scheduled</targetReference>
